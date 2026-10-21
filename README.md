@@ -7,7 +7,8 @@ Implements self-study conversation synthesis and context distillation from
 
 Supported aliases: `granite` (Granite 4.0 350M), `qwen2` (Qwen2.5 0.5B Instruct),
 `qwen3` (Qwen3 0.6B). HF IDs or local model paths also work for these architectures.
-Granite uses plain-text prompts; Qwen uses its chat template with thinking disabled.
+Native chat templates are used when supplied (including separate template files);
+otherwise prompts use plain text. Qwen thinking is disabled.
 
 ## Install
 
@@ -68,4 +69,5 @@ It retains native model attention, trains an FP32 post-RoPE KV prefix with AdamW
 and distills teacher top-20 probabilities plus a residual-probability bucket.
 Teacher distributions are recomputed during training. Batch size is one; no packed
 training, distributed training, Mamba/sliding-window caches, or fast serving integration.
-The included pilot checks functionality only. Validation status: SLURM smoke job 9256263 submitted; results pending.
+The included pilot checks functionality only. Validation: three core tests passed in job 9256263; end-to-end validation stopped
+at a tokenizer return-format error. A fix and regression test are awaiting a rerun.

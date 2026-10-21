@@ -107,8 +107,8 @@ def prompt_ids(tokenizer, history, context=None):
     messages = [{"role": "system", "content": system}] + history
     if tokenizer.chat_template:
         return tokenizer.apply_chat_template(messages, tokenize=True, add_generation_prompt=True,
-                                             enable_thinking=False)
-    # Granite 350M is a base LM, so no invented chat-control tokens.
+                                             enable_thinking=False, return_dict=False)
+    # Plain-text fallback for tokenizers without a supplied chat template.
     text = system + "\n\n" + "\n".join(
         ("Question: " if m["role"] == "user" else "Answer: ") + m["content"] for m in history
     ) + "\nAnswer:"

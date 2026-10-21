@@ -4,7 +4,7 @@ from pathlib import Path
 import torch
 import torch.nn.functional as F
 from transformers import AutoModelForCausalLM, Qwen2Config, Qwen3Config, GraniteMoeHybridConfig
-from radway_cartridges.core import Cartridge, distillation_loss, fingerprint, validate_config
+from radway_cartridges.core import Cartridge, distillation_loss, fingerprint, validate_config, prompt_ids
 
 class CartridgeTests(unittest.TestCase):
     def configs(self):
@@ -83,6 +83,20 @@ class CartridgeTests(unittest.TestCase):
             loss.backward()
             self.assertTrue(torch.isfinite(student.grad).all())
             student.grad = None
+
+    def test_chat_template_returns_token_ids(self):
+        from tokenizers import Tokenizer
+        from tokenizers.models import WordLevel
+        from tokenizers.pre_tokenizers import Whitespace
+        from transformers import PreTrainedTokenizerFast
+        backend = Tokenizer(WordLevel({"[UNK]": 0, "hello": 1}, unk_token="[UNK]"))
+        backend.pre_tokenizer = Whitespace()
+        tokenizer = PreTrainedTokenizerFast(tokenizer_object=backend, unk_token="[UNK]")
+        tokenizer.chat_template = "{% for m in messages %}{{ m['content'] }} {% endfor %}"
+        ids = prompt_ids(tokenizer, [{"role": "user", "content": "hello"}])
+        self.assertIsInstance(ids, list)
+        self.assertTrue(ids)
+        self.assertTrue(all(isinstance(i, int) for i in ids))
 
     def test_reject_hybrid(self):
         config = list(self.configs())[-1]
