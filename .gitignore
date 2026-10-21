@@ -1,0 +1,11 @@
+upstream-reference/
+.venv/
+__pycache__/
+*.egg-info/
+.pytest_cache/
+outputs/
+.cache/
+*.pt
+*.safetensors
+cartridges-smoke-*.out
+cartridges-smoke-*.err
