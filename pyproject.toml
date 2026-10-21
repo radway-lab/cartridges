@@ -1,16 +1,33 @@
 [build-system]
-requires = ["setuptools>=68"]
+requires = ["setuptools>=61.0"]
 build-backend = "setuptools.build_meta"
 
 [project]
-name = "radway-cartridges"
-version = "0.1.0"
-description = "Self-study KV cartridges for Granite 350M and small Qwen models"
+name = "cartridges"
+version = "0.0.1"
+description = "Lightweight and general-purpose long-context representations"
 requires-python = ">=3.11"
-dependencies = ["torch>=2.6,<3", "transformers==5.19.0", "safetensors>=0.4"]
+dependencies = [
+    "torch",
+    "openai",
+    "datasets",
+    "transformers==5.19.0",
+    "numpy",
+    "einops",
+    "tqdm",
+    "wandb",
+    "pydrantic",
+    "tiktoken",
+    "peft",
+    "evaluate",
+    "matplotlib",
+    "markdown", "pyarrow", "pandas", "scipy", "rich", "httpx", "mcp"
+]
 
-[project.scripts]
-cartridges = "radway_cartridges.cli:main"
+
 
 [tool.setuptools.packages.find]
-where = ["src"]
+include = ["cartridges*", "examples*"]
+
+[tool.setuptools.package-data]
+cartridges = ["initialization/data/*.txt", "data/**/*.txt"]

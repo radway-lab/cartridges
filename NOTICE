@@ -1,6 +1,4 @@
-Method: Eyuboglu et al. (2025), Cartridges: Lightweight and general-purpose
-long context representations via self-study. https://arxiv.org/abs/2506.06266
-Reference implementation: https://github.com/HazyResearch/cartridges
-Reference commit reviewed: ef34ba97a06049c34820506e2c283746284ae5f0
-This repository provides an independent implementation using Hugging Face models.
-Model weights retain their respective upstream licenses.
+Derived from HazyResearch/cartridges at ef34ba97a06049c34820506e2c283746284ae5f0.
+Original authorship and Apache-2.0 license are preserved in source and LICENSE.md.
+Method: Eyuboglu et al., Cartridges (2025), https://arxiv.org/abs/2506.06266.
+Radway modifications add small-model adapters and PARCC/local inference support.

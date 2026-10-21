@@ -1,4 +1,4 @@
-name: radway-cartridges
+name: cartridges-upstream
 channels:
   - conda-forge
 dependencies:

@@ -1,73 +1,52 @@
-# Cartridges for Granite and Qwen
+# Cartridges for small Qwen and Granite models
 
-Train a small, reusable KV cache for a text corpus while keeping model weights frozen.
-Implements self-study conversation synthesis and context distillation from
-[Cartridges](https://arxiv.org/abs/2506.06266), following
-[HazyResearch/cartridges](https://github.com/HazyResearch/cartridges).
+Port of [HazyResearch/cartridges](https://github.com/HazyResearch/cartridges),
+retaining its self-study synthesizer, packed datasets, trainable KV cache,
+FlexAttention, Adam optimizer, and top-k context-distillation loss.
+Upstream revision: `ef34ba97a06049c34820506e2c283746284ae5f0`.
 
-Supported aliases: `granite` (Granite 4.0 350M), `qwen2` (Qwen2.5 0.5B Instruct),
-`qwen3` (Qwen3 0.6B). HF IDs or local model paths also work for these architectures.
-Native chat templates are used when supplied (including separate template files);
-otherwise prompts use plain text. Qwen thinking is disabled.
+Models: `qwen2` = Qwen2.5-0.5B-Instruct, `qwen3` = Qwen3-0.6B,
+`granite` = Granite-4.0-350m (attention-only configuration).
 
 ## Install
 
-Python 3.11+ and a CUDA GPU are recommended. Install a PyTorch build suitable for your GPU.
-
 ```bash
-git clone https://github.com/radway-lab/cartridges.git
-cd cartridges
 python3 -m venv .venv
 source .venv/bin/activate
 pip install -e .
+export CARTRIDGES_DIR="$PWD"
+export CARTRIDGES_OUTPUT_DIR="$PWD/outputs"
 ```
 
-Alternatively: `conda env create -f environment.yml`, then `conda activate radway-cartridges`.
-Transformers is pinned because its cache API changes. PARCC versions are recorded in
-`requirements-parcc.txt`. CPU: add `--device cpu --dtype float32` to commands.
+Use Python 3.11+ and CUDA PyTorch. Transformers is pinned to 5.19.0 for the
+native model adapters. Original Llama examples have not been validated with it.
 
-## Use
+## Run
 
-Start with the included toy corpus, then replace it with your UTF-8 text file.
-Use the same model and document for synthesis, training, and evaluation.
+Use a UTF-8 text document or start with the authors' paper example:
 
 ```bash
-cartridges synthesize --model qwen3 --document examples/corpus.txt --output outputs/study.jsonl
-cartridges train --model qwen3 --document examples/corpus.txt --data outputs/study.jsonl --output outputs/cartridge.pt
-cartridges evaluate --model qwen3 --document examples/corpus.txt --data examples/eval.jsonl --checkpoint outputs/cartridge.pt --output outputs/eval.jsonl
-cartridges chat --model qwen3 --checkpoint outputs/cartridge.pt --question "Who directs the station?"
+python -m examples.small_models.run synthesize --model qwen3 --document examples/arxiv/cartridges.tex --output outputs/qwen3
+python -m examples.small_models.run train --model qwen3 --document examples/arxiv/cartridges.tex --output outputs/qwen3
 ```
 
-Change `--model` for each model; keep its outputs separate. Outputs are not overwritten.
-Evaluation JSONL contains `question` and `answer` fields; use questions excluded from
-training. Results include reference-answer NLL, greedy responses, and strict exact match
-for full context, no context, and cartridge. These are diagnostic metrics, not a claim
-that a trained cartridge matches full-context quality.
+Change `--model` and use a separate output directory for each model. Synthesis
+uses the upstream two-agent recipe and writes upstream `dataset.parquet` files;
+training invokes upstream `TrainConfig`. No external inference service or W&B
+account is required. Add `--offline` to use cached models only.
 
-Useful options: `--revision`, `--offline`, `--cartridge-tokens`, `--steps`, `--lr`,
-`--samples`, `--turns`, `--chunk-tokens`. Run any subcommand with `--help`.
-The whole document must fit the model context for full-context evaluation.
+Defaults: 512 conversations, two rounds, 128-token cartridge, up to 256 optimizer
+steps, global batch size 4, learning rate 0.02. See `--help` to change them.
+These are starting settings, not validated quality claims or paper-scale results.
 
-## PARCC and tests
+## PARCC
 
-`slurm/smoke.sbatch` runs unit tests and a tiny end-to-end pass on all three cached
-models. Set `CARTRIDGES_ROOT`, `CARTRIDGES_PYTHON`, and `HF_HOME` for another installation.
-It uses one B200 45GB MIG slice for at most 60 minutes; obtain allocation approval
-before submitting. From the repository root:
+After resource approval, submit `sbatch slurm/upstream-validation.sbatch` from
+this directory. It requests one 45GB MIG GPU, 6 CPUs, 48GB RAM, and one hour.
+It checks native-model equivalence and packed-sequence isolation, then exercises
+the original synthesis/trainer on all three models. Cluster paths are in `slurm/`.
 
-```bash
-sbatch slurm/smoke.sbatch
-```
-
-Outside PARCC: `python -m unittest discover -s tests -v` runs tiny random-model tests on CPU.
-No downloaded weights are needed for these tests.
-
-## Scope
-
-This is a standalone implementation, not an upstream fork or checkpoint-compatible port.
-It retains native model attention, trains an FP32 post-RoPE KV prefix with AdamW,
-and distills teacher top-20 probabilities plus a residual-probability bucket.
-Teacher distributions are recomputed during training. Batch size is one; no packed
-training, distributed training, Mamba/sliding-window caches, or fast serving integration.
-The included pilot checks functionality only. Validation: three core tests passed in job 9256263; end-to-end validation stopped
-at a tokenizer return-format error. A fix and regression test are awaiting a rerun.
+Validation status: port not yet GPU-tested. The earlier successful standalone
+smoke run did not use the upstream trainer and does not validate this port.
+Upstream source and its Apache-2.0 license are preserved. See `UPSTREAM_PORT.md`
+for the compatibility changes.
