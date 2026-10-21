@@ -5,9 +5,9 @@
 #SBATCH --qos=mig
 #SBATCH --gpus=1
 #SBATCH --ntasks=1
-#SBATCH --cpus-per-task=4
-#SBATCH --mem=24G
-#SBATCH --time=00:30:00
+#SBATCH --cpus-per-task=6
+#SBATCH --mem=48G
+#SBATCH --time=01:00:00
 #SBATCH --output=cartridges-smoke-%j.out
 #SBATCH --error=cartridges-smoke-%j.err
 set -euo pipefail

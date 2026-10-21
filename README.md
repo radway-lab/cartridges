@@ -51,7 +51,7 @@ The whole document must fit the model context for full-context evaluation.
 
 `slurm/smoke.sbatch` runs unit tests and a tiny end-to-end pass on all three cached
 models. Set `CARTRIDGES_ROOT`, `CARTRIDGES_PYTHON`, and `HF_HOME` for another installation.
-It uses one B200 45GB MIG slice for at most 30 minutes; obtain allocation approval
+It uses one B200 45GB MIG slice for at most 60 minutes; obtain allocation approval
 before submitting. From the repository root:
 
 ```bash
@@ -68,4 +68,4 @@ It retains native model attention, trains an FP32 post-RoPE KV prefix with AdamW
 and distills teacher top-20 probabilities plus a residual-probability bucket.
 Teacher distributions are recomputed during training. Batch size is one; no packed
 training, distributed training, Mamba/sliding-window caches, or fast serving integration.
-The included pilot checks functionality only. Validation status: pending SLURM approval.
+The included pilot checks functionality only. Validation status: SLURM smoke job 9256263 submitted; results pending.

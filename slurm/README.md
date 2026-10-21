@@ -3,9 +3,9 @@
 Submit `sbatch slurm/smoke.sbatch` from the repository root after resource approval.
 The script does not submit any further jobs. Outputs: `outputs/smoke-JOBID/`.
 
-Allocation: 1 B200 45GB MIG slice, 4 CPUs, 24GB host RAM, 30-minute wall limit.
+Allocation: 1 B200 45GB MIG slice, 6 CPUs, 48GB host RAM, 60-minute wall limit.
 Estimate: 5-15 minutes, <12GB GPU memory, <100MB new outputs; no weight downloads.
-Upper bound: 0.5 MIG-slice hours, 2 CPU-hours. Estimates are unmeasured.
+Upper bound: 1 MIG-slice hour, 6 CPU-hours. Estimates are unmeasured.
 
 Runs tiny CPU model tests, then two one-turn self-study conversations, three
 optimizer steps with a 32-token cartridge, and three evaluation questions per model.
